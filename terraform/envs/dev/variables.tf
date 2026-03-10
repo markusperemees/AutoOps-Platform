@@ -27,3 +27,8 @@ variable "private_subnet_cidr" {
   description = "CIDR block for the private subnet."
   type        = string
 }
+
+variable "ssh_cidr" {
+  description = "CIDR block allowed to access the instance over SSH."
+  type        = string
+}
