@@ -32,3 +32,28 @@ variable "ssh_cidr" {
   description = "CIDR block allowed to access the instance over SSH."
   type        = string
 }
+
+variable "monitoring_instance_ami" {
+  description = "EC2 AMI ID or SSM parameter path for the monitoring instance image."
+  type        = string
+}
+
+variable "monitoring_instance_type" {
+  description = "EC2 instance type for the monitoring server."
+  type        = string
+}
+
+variable "app_instance_ami" {
+  description = "EC2 AMI ID or SSM parameter path for the app instance image."
+  type        = string
+}
+
+variable "app_instance_type" {
+  description = "EC2 instance type for app servers."
+  type        = string
+}
+
+variable "app_instance_count" {
+  description = "Number of app EC2 instances to create."
+  type        = number
+}
