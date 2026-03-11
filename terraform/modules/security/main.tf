@@ -64,6 +64,14 @@ resource "aws_security_group" "app_sg" {
   }
 
   ingress {
+    description     = "Allow SSH from monitoring (bastion) SG"
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    security_groups = [aws_security_group.monitoring_sg.id]
+  }
+
+  ingress {
     description = "Allow application access from the monitoring security group"
     from_port   = 5000
     to_port     = 5000
