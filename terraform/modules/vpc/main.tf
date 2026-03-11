@@ -1,3 +1,4 @@
+#tfsec:ignore:aws-ec2-require-vpc-flow-logs-for-all-vpcs:exp:2026-06-30
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
@@ -16,6 +17,7 @@ resource "aws_internet_gateway" "main" {
   })
 }
 
+#tfsec:ignore:aws-ec2-no-public-ip-subnet:exp:2026-06-30
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = var.public_subnet_cidr

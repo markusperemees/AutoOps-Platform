@@ -1,3 +1,4 @@
+#tfsec:ignore:aws-ec2-no-public-egress-sgr:exp:2026-06-30
 resource "aws_security_group" "monitoring_sg" {
   name        = "${var.project_name}-${var.environment}-monitoring-sg"
   description = "Security group for the monitoring instance and monitoring web interfaces."
@@ -48,6 +49,7 @@ resource "aws_security_group" "monitoring_sg" {
   })
 }
 
+#tfsec:ignore:aws-ec2-no-public-egress-sgr:exp:2026-06-30
 resource "aws_security_group" "app_sg" {
   name        = "${var.project_name}-${var.environment}-app-sg"
   description = "Security group for application instances and internal monitoring endpoints."

@@ -11,15 +11,15 @@ module "vpc" {
 module "security" {
   source = "../../modules/security"
 
-  project_name        = var.project_name
-  environment         = var.environment
-  vpc_id              = module.vpc.vpc_id
-  ssh_cidr            = var.ssh_cidr
+  project_name = var.project_name
+  environment  = var.environment
+  vpc_id       = module.vpc.vpc_id
+  ssh_cidr     = var.ssh_cidr
 }
 
 module "ec2" {
   source = "../../modules/ec2"
-  
+
   project_name             = var.project_name
   environment              = var.environment
   monitoring_instance_ami  = var.monitoring_instance_ami
