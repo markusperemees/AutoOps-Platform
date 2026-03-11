@@ -1,0 +1,64 @@
+---
+- name: Bootstrap base services on all servers
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Refresh DNF cache and update all packages
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+        update_cache: true
+
+    - name: Ensure Python 3 is installed
+      ansible.builtin.dnf:
+        name: python3
+        state: present
+
+    - name: Install basic utility packages
+      ansible.builtin.dnf:
+        name:
+          - curl-minimal
+          - git
+          - unzip
+        state: present
+    
+    - name: Install Docker
+      ansible.builtin.dnf:
+        name: docker
+        state: present
+    
+    - name: Ensure Docker CLI plugins directory exists
+      ansible.builtin.file:
+        path: /usr/local/lib/docker/cli-plugins
+        state: directory
+        mode: "0755"
+
+    - name: Install Docker Compose v2 plugin
+      ansible.builtin.get_url:
+        url: https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64
+        dest: /usr/local/lib/docker/cli-plugins/docker-compose
+        mode: "0755"
+
+    - name: Enable and start Docker service
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Add ec2-user to docker group
+      ansible.builtin.user:
+        name: ec2-user
+        groups: docker
+        append: true
+
+    - name: Ensure chrony package is installed
+      ansible.builtin.dnf:
+        name: chrony
+        state: present
+
+    - name: Enable and start chronyd service
+      ansible.builtin.service:
+        name: chronyd
+        state: started
+        enabled: true
