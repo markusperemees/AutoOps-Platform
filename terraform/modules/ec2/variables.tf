@@ -9,9 +9,9 @@ variable "environment" {
 }
 
 variable "monitoring_instance_ami" {
-  description = "EC2 AMI ID or SSM parameter path for the instance image."
+  description = "EC2 AMI ID for the monitoring instance (ami-...)."
   type        = string
-  default     = "resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+  default     = "ami-0aaa636894689fa47"
 }
 
 variable "monitoring_instance_type" {
@@ -31,9 +31,9 @@ variable "monitoring_sg_id" {
 }
 
 variable "app_instance_ami" {
-  description = "EC2 AMI ID or SSM parameter path for the instance image."
+  description = "EC2 AMI ID for the app instance (ami-...)."
   type        = string
-  default     = "resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+  default     = "ami-0aaa636894689fa47"
 }
 
 variable "app_instance_type" {
