@@ -1,0 +1,87 @@
+name: Terraform CI (dev)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "terraform/envs/dev/**"
+      - "terraform/modules/**"
+      - ".github/workflows/terraform-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: terraform-ci-dev-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TF_WORKING_DIR: terraform/envs/dev
+  TF_VERSION: "1.6.6"
+  AWS_REGION: ${{ vars.AWS_REGION }}
+
+jobs:
+  plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_PLAN_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Prepare tfvars
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          cp terraform.tfvars.example terraform.tfvars
+          sed -i "s|YOUR_PUBLIC_IP/32|${{ vars.DEV_SSH_CIDR }}|g" terraform.tfvars
+
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init -input=false
+
+      - name: Terraform Fmt
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Validate
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform validate
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: TFLint Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: tflint --init
+
+      - name: TFLint
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: tflint
+
+      - name: Install tfsec
+        run: |
+          TFSEC_VERSION="v1.28.14"
+          curl -sSLo tfsec "https://github.com/aquasecurity/tfsec/releases/download/${TFSEC_VERSION}/tfsec-linux-amd64"
+          chmod +x tfsec
+          sudo mv tfsec /usr/local/bin/tfsec
+          tfsec --version
+
+      - name: Tfsec
+        run: tfsec ${{ env.TF_WORKING_DIR }} --no-color
+
+      - name: Terraform Plan
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform plan -input=false -lock-timeout=5m -var-file=terraform.tfvars -out=tfplan
