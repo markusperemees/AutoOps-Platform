@@ -57,3 +57,8 @@ variable "app_instance_count" {
   type        = number
   default     = 2
 }
+
+variable "key_name" {
+  description = "EC2 instance SSH key pair name used for access"
+  type        = string
+}

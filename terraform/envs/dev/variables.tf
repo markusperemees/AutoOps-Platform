@@ -57,3 +57,8 @@ variable "app_instance_count" {
   description = "Number of app EC2 instances to create."
   type        = number
 }
+
+variable "key_name" {
+  description = "EC2 instance SSH key pair name used for access"
+  type        = string
+}
