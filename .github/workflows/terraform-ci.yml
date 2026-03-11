@@ -42,12 +42,6 @@ jobs:
           role-to-assume: ${{ vars.AWS_PLAN_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Prepare tfvars
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: |
-          cp terraform.tfvars.example terraform.tfvars
-          sed -i "s|YOUR_PUBLIC_IP/32|${{ vars.DEV_SSH_CIDR }}|g" terraform.tfvars
-
       - name: Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform init -input=false
@@ -81,6 +75,12 @@ jobs:
 
       - name: Tfsec
         run: tfsec ${{ env.TF_WORKING_DIR }} --no-color
+
+      - name: Prepare tfvars
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          cp terraform.tfvars.example terraform.tfvars
+          sed -i "s|YOUR_PUBLIC_IP/32|${{ vars.DEV_SSH_CIDR }}|g" terraform.tfvars
 
       - name: Terraform Plan
         working-directory: ${{ env.TF_WORKING_DIR }}

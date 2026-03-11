@@ -19,7 +19,7 @@ module "security" {
 
 module "ec2" {
   source = "../../modules/ec2"
-  
+
   project_name             = var.project_name
   environment              = var.environment
   monitoring_instance_ami  = var.monitoring_instance_ami
