@@ -31,4 +31,5 @@ module "ec2" {
   private_subnet_id        = module.vpc.private_subnet_id
   app_sg_id                = module.security.app_sg_id
   app_instance_count       = var.app_instance_count
+  key_name                 = var.key_name
 }
