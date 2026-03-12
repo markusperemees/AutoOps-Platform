@@ -17,6 +17,8 @@
         - /opt/monitoring/alertmanager
         - /opt/monitoring/grafana
         - /opt/monitoring/grafana/provisioning
+        - /opt/monitoring/grafana/provisioning/datasources
+        - /opt/monitoring/grafana/provisioning/dashboards
         - /opt/monitoring/grafana/dashboards
 
     - name: "Set permissive permissions on monitoring data directories"
@@ -46,11 +48,40 @@
         - src: ../templates/docker-compose.monitoring.yml.j2
           dest: /opt/monitoring/docker-compose.yml
 
+    - name: "Copy Grafana provisioning and dashboard files"
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: "0644"
+      loop:
+        - src: ../templates/grafana/datasources/prometheus.yml.j2
+          dest: /opt/monitoring/grafana/provisioning/datasources/prometheus.yml
+        - src: ../templates/grafana/provisioning/dashboards.yml.j2
+          dest: /opt/monitoring/grafana/provisioning/dashboards/dashboards.yml
+      register: grafana_provisioning_files
+
+    - name: "Copy Grafana dashboard JSON files"
+      ansible.builtin.copy:
+        src: ../templates/grafana/dashboards/infrastructure-overview.json
+        dest: /opt/monitoring/grafana/dashboards/infrastructure-overview.json
+        owner: root
+        group: root
+        mode: "0644"
+      register: grafana_dashboard_files
+
     - name: "Start monitoring stack with Docker Compose"
       ansible.builtin.command: docker compose up -d
       args:
         chdir: /opt/monitoring
       changed_when: false
+
+    - name: "Recreate Grafana container when provisioning files change"
+      ansible.builtin.command: docker compose up -d --force-recreate grafana
+      args:
+        chdir: /opt/monitoring
+      when: grafana_provisioning_files.changed or grafana_dashboard_files.changed
 
     - name: "Wait for monitoring services to be reachable"
       ansible.builtin.wait_for:
