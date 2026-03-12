@@ -18,9 +18,6 @@
         - /opt/monitoring/grafana
         - /opt/monitoring/grafana/provisioning
         - /opt/monitoring/grafana/dashboards
-        - /opt/monitoring/prometheus/data
-        - /opt/monitoring/alertmanager/data
-        - /opt/monitoring/grafana/data
 
     - name: "Set permissive permissions on monitoring data directories"
       ansible.builtin.file:
@@ -53,6 +50,7 @@
       ansible.builtin.command: docker compose up -d
       args:
         chdir: /opt/monitoring
+      changed_when: false
 
     - name: "Wait for monitoring services to be reachable"
       ansible.builtin.wait_for:

@@ -1,0 +1,38 @@
+---
+- name: Deploy app stack on app nodes
+  hosts: app
+  become: true
+
+  tasks:
+    - name: Create app deployment directory
+      ansible.builtin.file:
+        path: /opt/app
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Render app Docker Compose file
+      ansible.builtin.template:
+        src: ../templates/docker-compose.app.yml.j2
+        dest: /opt/app/docker-compose.yml
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Start app stack with Docker Compose
+      ansible.builtin.command: docker compose up -d
+      args:
+        chdir: /opt/app
+      changed_when: false
+
+    - name: Wait for app and exporter ports to be reachable
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: "{{ item }}"
+        delay: 3
+        timeout: 120
+      loop:
+        - 5000
+        - 9100
+        - 8080
