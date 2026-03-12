@@ -33,7 +33,7 @@
         - /opt/monitoring/alertmanager/data
         - /opt/monitoring/grafana/data
 
-    - name: "Copy monitoring configuration files"
+    - name: "Copy Prometheus and Docker Compose configuration files"
       ansible.builtin.template:
         src: "{{ item.src }}"
         dest: "{{  item.dest }}"
@@ -43,10 +43,21 @@
       loop:
         - src: ../templates/prometheus.yml.j2
           dest: /opt/monitoring/prometheus/prometheus.yml
-        - src: ../templates/alertmanager.yml.j2
-          dest: /opt/monitoring/alertmanager/alertmanager.yml
+        - src: ../templates/prometheus-alert-rules.yml.j2
+          dest: /opt/monitoring/prometheus/alert-rules.yml
         - src: ../templates/docker-compose.monitoring.yml.j2
           dest: /opt/monitoring/docker-compose.yml
+      register: monitoring_config_files
+
+    - name: "Render Alertmanager configuration"
+      ansible.builtin.template:
+        src: ../templates/alertmanager.yml.j2
+        dest: /opt/monitoring/alertmanager/alertmanager.yml
+        owner: root
+        group: root
+        mode: "0644"
+      no_log: true
+      register: alertmanager_config_file
 
     - name: "Copy Grafana provisioning and dashboard files"
       ansible.builtin.template:
@@ -76,6 +87,12 @@
       args:
         chdir: /opt/monitoring
       changed_when: false
+
+    - name: "Recreate Prometheus and Alertmanager when config files change"
+      ansible.builtin.command: docker compose up -d --force-recreate prometheus alertmanager
+      args:
+        chdir: /opt/monitoring
+      when: monitoring_config_files.changed or alertmanager_config_file.changed
 
     - name: "Recreate Grafana container when provisioning files change"
       ansible.builtin.command: docker compose up -d --force-recreate grafana
