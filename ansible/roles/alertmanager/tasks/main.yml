@@ -1,0 +1,21 @@
+---
+- name: Create Alertmanager directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "{{ monitoring_base_dir }}/alertmanager", owner: "root", group: "root", mode: "0755" }
+    - { path: "{{ monitoring_base_dir }}/alertmanager/data", owner: "65534", group: "65534", mode: "0755" }
+
+- name: Template Alertmanager configuration
+  ansible.builtin.template:
+    src: alertmanager.yml.j2
+    dest: "{{ monitoring_base_dir }}/alertmanager/alertmanager.yml"
+    owner: root
+    group: root
+    mode: "0644"
+  no_log: true
+  notify: Recreate Alertmanager

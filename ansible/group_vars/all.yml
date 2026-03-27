@@ -1,0 +1,22 @@
+---
+# Project
+project_name: autoops
+environment: dev
+
+# Docker Compose plugin
+docker_compose_version: "v2.29.2"
+docker_compose_url: >-
+  https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-linux-x86_64
+docker_compose_dest: /usr/local/lib/docker/cli-plugins/docker-compose
+
+# System user
+system_user: ec2-user
+
+# Base packages
+common_packages:
+  - python3
+  - curl-minimal
+  - git
+  - unzip
+  - docker
+  - chrony

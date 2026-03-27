@@ -1,0 +1,14 @@
+---
+# Base directory
+app_base_dir: /opt/app
+
+# Image versions
+podinfo_image: stefanprodan/podinfo:6.9.2
+node_exporter_image: prom/node-exporter:v1.8.2
+cadvisor_image: gcr.io/cadvisor/cadvisor:v0.49.1
+
+# App services to wait for
+app_service_ports:
+  - 5000  # Podinfo
+  - 9100  # Node Exporter
+  - 8080  # cAdvisor

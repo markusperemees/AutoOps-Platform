@@ -1,0 +1,5 @@
+---
+- name: Recreate Grafana
+  ansible.builtin.command:
+    cmd: docker compose up -d --force-recreate grafana
+    chdir: "{{ monitoring_base_dir }}"

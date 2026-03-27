@@ -1,0 +1,42 @@
+---
+- name: Create Grafana directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "{{ monitoring_base_dir }}/grafana", owner: "root", group: "root", mode: "0755" }
+    - { path: "{{ monitoring_base_dir }}/grafana/data", owner: "472", group: "472", mode: "0755" }
+    - { path: "{{ grafana_provisioning_dir }}/datasources", owner: "root", group: "root", mode: "0755" }
+    - { path: "{{ grafana_provisioning_dir }}/dashboards", owner: "root", group: "root", mode: "0755" }
+    - { path: "{{ grafana_dashboards_dir }}", owner: "root", group: "root", mode: "0755" }
+
+- name: Template Grafana datasource configuration
+  ansible.builtin.template:
+    src: datasources/prometheus.yml.j2
+    dest: "{{ grafana_provisioning_dir }}/datasources/prometheus.yml"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Recreate Grafana
+
+- name: Template Grafana dashboard provider configuration
+  ansible.builtin.template:
+    src: provisioning/dashboards.yml.j2
+    dest: "{{ grafana_provisioning_dir }}/dashboards/dashboards.yml"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Recreate Grafana
+
+- name: Template Grafana dashboard JSON
+  ansible.builtin.template:
+    src: dashboards/infrastructure-overview.json.j2
+    dest: "{{ grafana_dashboards_dir }}/infrastructure-overview.json"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Recreate Grafana
+  

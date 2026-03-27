@@ -1,112 +1,19 @@
 ---
-- name: Deploy monitoring stack on monitoring node
+- name: Deploy monitoring stack
   hosts: monitoring_nodes
   become: true
 
-  tasks:
-    - name: "Create persistent monitoring directories"
+  pre_tasks:
+    - name: Create monitoring base directory
       ansible.builtin.file:
-        path: "{{ item }}"
+        path: "{{ monitoring_base_dir }}"
         state: directory
         owner: root
         group: root
         mode: "0755"
-      loop:
-        - /opt/monitoring
-        - /opt/monitoring/prometheus
-        - /opt/monitoring/alertmanager
-        - /opt/monitoring/grafana
-        - /opt/monitoring/grafana/provisioning
-        - /opt/monitoring/grafana/provisioning/datasources
-        - /opt/monitoring/grafana/provisioning/dashboards
-        - /opt/monitoring/grafana/dashboards
 
-    - name: "Set permissive permissions on monitoring data directories"
-      ansible.builtin.file:
-        path: "{{ item }}"
-        state: directory
-        owner: root
-        group: root
-        mode: "0777"
-      loop:
-        - /opt/monitoring/prometheus/data
-        - /opt/monitoring/alertmanager/data
-        - /opt/monitoring/grafana/data
-
-    - name: "Copy Prometheus and Docker Compose configuration files"
-      ansible.builtin.template:
-        src: "{{ item.src }}"
-        dest: "{{  item.dest }}"
-        owner: root
-        group: root
-        mode: "0644"
-      loop:
-        - src: ../templates/prometheus.yml.j2
-          dest: /opt/monitoring/prometheus/prometheus.yml
-        - src: ../templates/prometheus-alert-rules.yml.j2
-          dest: /opt/monitoring/prometheus/alert-rules.yml
-        - src: ../templates/docker-compose.monitoring.yml.j2
-          dest: /opt/monitoring/docker-compose.yml
-      register: monitoring_config_files
-
-    - name: "Render Alertmanager configuration"
-      ansible.builtin.template:
-        src: ../templates/alertmanager.yml.j2
-        dest: /opt/monitoring/alertmanager/alertmanager.yml
-        owner: root
-        group: root
-        mode: "0644"
-      no_log: true
-      register: alertmanager_config_file
-
-    - name: "Copy Grafana provisioning and dashboard files"
-      ansible.builtin.template:
-        src: "{{ item.src }}"
-        dest: "{{ item.dest }}"
-        owner: root
-        group: root
-        mode: "0644"
-      loop:
-        - src: ../templates/grafana/datasources/prometheus.yml.j2
-          dest: /opt/monitoring/grafana/provisioning/datasources/prometheus.yml
-        - src: ../templates/grafana/provisioning/dashboards.yml.j2
-          dest: /opt/monitoring/grafana/provisioning/dashboards/dashboards.yml
-      register: grafana_provisioning_files
-
-    - name: "Copy Grafana dashboard JSON files"
-      ansible.builtin.copy:
-        src: ../templates/grafana/dashboards/infrastructure-overview.json
-        dest: /opt/monitoring/grafana/dashboards/infrastructure-overview.json
-        owner: root
-        group: root
-        mode: "0644"
-      register: grafana_dashboard_files
-
-    - name: "Start monitoring stack with Docker Compose"
-      ansible.builtin.command: docker compose up -d
-      args:
-        chdir: /opt/monitoring
-      changed_when: false
-
-    - name: "Recreate Prometheus and Alertmanager when config files change"
-      ansible.builtin.command: docker compose up -d --force-recreate prometheus alertmanager
-      args:
-        chdir: /opt/monitoring
-      when: monitoring_config_files.changed or alertmanager_config_file.changed
-
-    - name: "Recreate Grafana container when provisioning files change"
-      ansible.builtin.command: docker compose up -d --force-recreate grafana
-      args:
-        chdir: /opt/monitoring
-      when: grafana_provisioning_files.changed or grafana_dashboard_files.changed
-
-    - name: "Wait for monitoring services to be reachable"
-      ansible.builtin.wait_for:
-        host: 127.0.0.1
-        port: "{{ item }}"
-        delay: 3
-        timeout: 120
-      loop:
-        - 9090
-        - 9093
-        - 3000
+  roles:
+    - prometheus
+    - alertmanager
+    - grafana
+    - monitoring_compose

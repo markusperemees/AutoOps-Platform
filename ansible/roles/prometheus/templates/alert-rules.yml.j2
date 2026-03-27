@@ -1,0 +1,35 @@
+groups:
+  - name: autoops-alerts
+    rules:
+      - alert: InstanceDown
+        expr: >-
+          up{job=~"monitoring-node-exporter|app-node-exporter|app-cadvisor|demo-app|alertmanager"} == 0
+        for: {{ alert_instance_down_duration }}
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance is down ({% raw %}{{ $labels.job }} {{ $labels.instance }}{% endraw %})"
+          description: "Prometheus target has been down for more than {{ alert_instance_down_duration }}."
+
+      - alert: HighCPUUsage
+        expr: >-
+          100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle",
+          job=~"monitoring-node-exporter|app-node-exporter"}[5m])) * 100) > {{ alert_cpu_threshold }}
+        for: {{ alert_cpu_duration }}
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {% raw %}{{ $labels.instance }}{% endraw %}"
+          description: "CPU usage is above {{ alert_cpu_threshold }}% for at least {{ alert_cpu_duration }}."
+
+      - alert: HighMemoryUsage
+        expr: >-
+          (1 - (node_memory_MemAvailable_bytes{job=~"monitoring-node-exporter|app-node-exporter"}
+          / node_memory_MemTotal_bytes{job=~"monitoring-node-exporter|app-node-exporter"})) * 100
+          > {{ alert_memory_threshold }}
+        for: {{ alert_memory_duration }}
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {% raw %}{{ $labels.instance }}{% endraw %}"
+          description: "Memory usage is above {{ alert_memory_threshold }}% for at least {{ alert_memory_duration }}."

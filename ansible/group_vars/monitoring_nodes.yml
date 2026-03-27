@@ -1,0 +1,37 @@
+---
+# Base directories
+monitoring_base_dir: /opt/monitoring
+grafana_provisioning_dir: "{{ monitoring_base_dir }}/grafana/provisioning"
+grafana_dashboards_dir: "{{ monitoring_base_dir }}/grafana/dashboards"
+
+# Image versions
+prometheus_image: prom/prometheus:v2.54.1
+alertmanager_image: prom/alertmanager:v0.27.0
+grafana_image: grafana/grafana:11.2.2
+node_exporter_image: prom/node-exporter:v1.8.2
+
+# Grafana credentials
+grafana_admin_user: admin
+grafana_admin_password: admin
+
+# Prometheus
+prometheus_scrape_interval: 15s
+prometheus_evaluation_interval: 15s
+
+# Alert thresholds
+alert_cpu_threshold: 80
+alert_cpu_duration: 5m
+alert_memory_threshold: 90
+alert_memory_duration: 5m
+alert_instance_down_duration: 2m
+
+# Alertmanager routing
+alertmanager_resolve_timeout: 5m
+alertmanager_group_wait: 30s
+alertmanager_group_interval: 5m
+alertmanager_repeat_interval: 4h
+
+monitoring_service_ports:
+  - 9090  # Prometheus
+  - 9093  # Alertmanager
+  - 3000  # Grafana

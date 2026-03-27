@@ -1,0 +1,5 @@
+---
+- name: Recreate Prometheus
+  ansible.builtin.command:
+    cmd: docker compose up -d --force-recreate prometheus
+    chdir: "{{ monitoring_base_dir }}"
