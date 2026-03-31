@@ -41,6 +41,14 @@ All main playbooks are tested as **idempotent**.
   - `playbooks/` - Core automation logic (`bootstrap`, `monitoring`, `app`)
   - `templates/` - Jinja2 configs for Grafana, Prometheus, and Docker Compose
 
+## Architecture
+
+Current runtime architecture for the `dev` environment:
+
+![AutoOps architecture](docs/architecture/autoops-architecture.svg)
+
+Source diagram: [docs/architecture/autoops-architecture.excalidraw](docs/architecture/autoops-architecture.excalidraw)
+
 ## Quick Start: Infrastructure (Terraform)
 
 This project uses remote state and is heavily integrated with **GitHub Actions** for CI/CD validation. 
