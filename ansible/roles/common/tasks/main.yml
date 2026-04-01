@@ -3,6 +3,7 @@
   ansible.builtin.dnf:
     name: "*"
     state: latest
+    update_only: true
     update_cache: true
   tags: [packages]
 

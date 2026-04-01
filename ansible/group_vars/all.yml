@@ -1,7 +1,6 @@
 ---
 # Project
 project_name: autoops
-environment: dev
 
 # Docker Compose plugin
 docker_compose_version: "v2.29.2"

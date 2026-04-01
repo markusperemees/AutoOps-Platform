@@ -3,3 +3,4 @@
   ansible.builtin.command:
     cmd: docker compose up -d
     chdir: "{{ app_base_dir }}"
+  changed_when: true
