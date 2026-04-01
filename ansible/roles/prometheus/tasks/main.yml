@@ -7,8 +7,14 @@
     group: "{{ item.group }}"
     mode: "{{ item.mode }}"
   loop:
-    - { path: "{{ monitoring_base_dir }}/prometheus", owner: "root", group: "root", mode: "0755" }
-    - { path: "{{ monitoring_base_dir }}/prometheus/data", owner: "65534", group: "65534", mode: "0755" }
+    - path: "{{ monitoring_base_dir }}/prometheus"
+      owner: "root"
+      group: "root"
+      mode: "0755"
+    - path: "{{ monitoring_base_dir }}/prometheus/data"
+      owner: "65534"
+      group: "65534"
+      mode: "0755"
 
 - name: Template Prometheus configuration
   ansible.builtin.template:
@@ -27,4 +33,3 @@
     group: root
     mode: "0644"
   notify: Recreate Prometheus
-  
