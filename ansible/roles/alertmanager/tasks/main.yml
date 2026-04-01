@@ -7,8 +7,14 @@
     group: "{{ item.group }}"
     mode: "{{ item.mode }}"
   loop:
-    - { path: "{{ monitoring_base_dir }}/alertmanager", owner: "root", group: "root", mode: "0755" }
-    - { path: "{{ monitoring_base_dir }}/alertmanager/data", owner: "65534", group: "65534", mode: "0755" }
+    - path: "{{ monitoring_base_dir }}/alertmanager"
+      owner: "root"
+      group: "root"
+      mode: "0755"
+    - path: "{{ monitoring_base_dir }}/alertmanager/data"
+      owner: "65534"
+      group: "65534"
+      mode: "0755"
 
 - name: Template Alertmanager configuration
   ansible.builtin.template:

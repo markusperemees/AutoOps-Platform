@@ -29,4 +29,3 @@
     delay: 3
     timeout: 120
   loop: "{{ monitoring_service_ports }}"
- 

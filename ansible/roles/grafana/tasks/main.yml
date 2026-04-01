@@ -7,11 +7,26 @@
     group: "{{ item.group }}"
     mode: "{{ item.mode }}"
   loop:
-    - { path: "{{ monitoring_base_dir }}/grafana", owner: "root", group: "root", mode: "0755" }
-    - { path: "{{ monitoring_base_dir }}/grafana/data", owner: "472", group: "472", mode: "0755" }
-    - { path: "{{ grafana_provisioning_dir }}/datasources", owner: "root", group: "root", mode: "0755" }
-    - { path: "{{ grafana_provisioning_dir }}/dashboards", owner: "root", group: "root", mode: "0755" }
-    - { path: "{{ grafana_dashboards_dir }}", owner: "root", group: "root", mode: "0755" }
+    - path: "{{ monitoring_base_dir }}/grafana"
+      owner: "root"
+      group: "root"
+      mode: "0755"
+    - path: "{{ monitoring_base_dir }}/grafana/data"
+      owner: "472"
+      group: "472"
+      mode: "0755"
+    - path: "{{ grafana_provisioning_dir }}/datasources"
+      owner: "root"
+      group: "root"
+      mode: "0755"
+    - path: "{{ grafana_provisioning_dir }}/dashboards"
+      owner: "root"
+      group: "root"
+      mode: "0755"
+    - path: "{{ grafana_dashboards_dir }}"
+      owner: "root"
+      group: "root"
+      mode: "0755"
 
 - name: Template Grafana datasource configuration
   ansible.builtin.template:
@@ -39,4 +54,3 @@
     group: root
     mode: "0644"
   notify: Recreate Grafana
-  
